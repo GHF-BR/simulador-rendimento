@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre o Projeto - Simulador Pro</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #121214; --surface-color: #202024; --surface-hover: #29292e;
+            --primary: #820ad1; --success: #04d361; --text-main: #e1e1e6;
+            --text-muted: #a8a8b3; --border-color: #323238;
+        }
+
+        body.light-theme {
+            --bg-color: #f4f6f9; --surface-color: #ffffff; --surface-hover: #f8f9fa;
+            --primary: #820ad1; --success: #05a04c; --text-main: #212529;
+            --text-muted: #6c757d; --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif; background-color: var(--bg-color);
+            color: var(--text-main); margin: 0; padding: 20px; display: flex;
+            justify-content: center; min-height: 100vh; box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dashboard-container {
+            display: grid; grid-template-columns: 1fr; gap: 24px;
+            max-width: 800px; width: 100%; align-content: start;
+        }
+
+        .card { background: var(--surface-color); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .header-title h1 { font-size: 28px; margin: 0 0 8px 0; font-weight: 700; }
+        .header-title p { color: var(--text-muted); margin: 0; font-size: 15px; }
+
+        .btn-theme { background: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-main); font-size: 20px; cursor: pointer; padding: 10px; border-radius: 12px; }
+
+        /* Menu Tabs */
+        .nav-tabs { display: flex; gap: 12px; margin-bottom: 10px; border-bottom: 2px solid var(--border-color); overflow-x: auto; }
+        .nav-tab { padding: 12px 24px; color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 15px; border-bottom: 3px solid transparent; transition: all 0.3s; margin-bottom: -2px; white-space: nowrap; }
+        .nav-tab:hover { color: var(--text-main); background: var(--surface-hover); border-radius: 8px 8px 0 0; }
+        .nav-tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+
+        /* Estilos do Conteúdo (README) */
+        .readme-content { line-height: 1.7; font-size: 16px; }
+        .readme-content h2 { color: var(--primary); font-size: 22px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-top: 35px; margin-bottom: 20px; }
+        .readme-content h3 { color: var(--text-main); font-size: 18px; margin-top: 25px; }
+        .readme-content p { color: var(--text-muted); }
+        .readme-content ul { color: var(--text-muted); padding-left: 20px; }
+        .readme-content li { margin-bottom: 10px; }
+        .readme-content strong { color: var(--text-main); font-weight: 600; }
+        
+        .badges { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .badges img { height: 26px; border-radius: 4px; }
+
+        .dev-footer { text-align: center; padding: 20px 0; font-size: 13px; color: var(--text-muted); }
+        .dev-footer strong { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    
+    <div class="header-top">
+        <div class="header-title">
+            <h1>📄 Sobre o Projeto</h1>
+            <p>Documentação oficial e detalhes técnicos da ferramenta.</p>
+        </div>
+        <button class="btn-theme" id="btnTheme" onclick="toggleTheme()" title="Alternar Tema">☀️</button>
+    </div>
+
+    <!-- Menu de Navegação -->
+    <nav class="nav-tabs">
+        <a href="index.html" class="nav-tab">Projeção de Juros</a>
+        <a href="independencia.html" class="nav-tab">Meta de Renda</a>
+        <a href="sobre.html" class="nav-tab active">Sobre o Projeto</a>
+    </nav>
+
+    <!-- Conteúdo do README convertido em HTML -->
+    <div class="card readme-content">
+        
+        <div class="badges">
+            <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
+            <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
+            <img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E" alt="JavaScript">
+        </div>
+
+        <p>Uma suíte web de alta fidelidade visual para simulação de juros compostos e cálculos de aposentadoria precoce. O design e a experiência do usuário (UX) foram construídos inspirados nas interfaces das maiores fintechs e corretoras do mercado (como Nubank, XP e BTG Pactual).</p>
+
+        <h2>🧩 Módulos do Aplicativo</h2>
+        <p>O sistema é dividido em duas ferramentas conectadas por um menu de navegação fluido:</p>
+        
+        <h3>1. Projeção de Juros (Calculadora de Ganho Garantido)</h3>
+        <ul>
+            <li>Focada em responder: <em>"Quanto dinheiro terei no futuro?"</em></li>
+            <li>Apresenta um gráfico interativo de área empilhada (Chart.js) dividindo visualmente o valor "tirado do bolso" do "lucro puro dos juros".</li>
+            <li>Tabela expansível com o detalhamento da evolução patrimonial ano a ano.</li>
+        </ul>
+
+        <h3>2. Meta de Renda (Independência Financeira)</h3>
+        <ul>
+            <li>Focada em responder: <em>"Quando poderei viver de renda passiva?"</em></li>
+            <li>Utiliza cálculos matemáticos de logaritmo e engenharia reversa para descobrir o tempo exato (Anos e Meses) e o Montante Alvo necessários para gerar o salário mensal desejado.</li>
+            <li>Apresenta a data futura estimada em que a meta será alcançada.</li>
+        </ul>
+
+        <h2>🚀 Funcionalidades Principais</h2>
+        <p>Este projeto se comporta como um verdadeiro <em>Dashboard Financeiro</em> reativo:</p>
+        <ul>
+            <li><strong>Cálculo em Tempo Real:</strong> Os resultados e o gráfico são atualizados instantaneamente conforme o usuário digita.</li>
+            <li><strong>Máscaras de Digitação:</strong> Formatação automática e inteligente para moedas (R$) e porcentagens (%).</li>
+            <li><strong>Modo Escuro e Claro:</strong> Alternância de temas fluida e animada, com paletas de cores estudadas para conforto visual.</li>
+            <li><strong>Memória Inteligente:</strong> Os últimos dados digitados em qualquer aba são salvos e restaurados automaticamente (LocalStorage).</li>
+            <li><strong>Exportação para PDF:</strong> Geração de relatórios profissionais direto para PDF nativo do navegador.</li>
+        </ul>
+
+        <h2>🛠️ Tecnologias Utilizadas</h2>
+        <ul>
+            <li><strong>HTML5:</strong> Estruturação semântica de alta performance.</li>
+            <li><strong>CSS3:</strong> Estilização avançada com Grid Layout, Flexbox, e Media Queries específicas para impressão (<code>@media print</code>).</li>
+            <li><strong>JavaScript (Vanilla):</strong> Lógica de negócios, cálculos de logaritmo, controle de estado e manipulação do DOM sem dependências pesadas.</li>
+            <li><strong>Chart.js:</strong> Biblioteca para renderização de gráficos dinâmicos via HTML5 Canvas.</li>
+            <li><strong>Inter Font:</strong> Tipografia padrão de mercado do Google Fonts.</li>
+        </ul>
+
+    </div>
+
+    <!-- Assinatura -->
+    <div class="dev-footer">
+        Developed by <strong>GHF</strong>
+    </div>
+
+</div>
+
+<script>
+    // ==========================================
+    // TEMA CLARO / ESCURO
+    // ==========================================
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-theme');
+        document.getElementById('btnTheme').innerText = isLight ? '🌙' : '☀️';
+        localStorage.setItem('theme_GHF', isLight ? 'light' : 'dark');
+    }
+
+    function carregarTema() {
+        const theme = localStorage.getItem('theme_GHF');
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('btnTheme').innerText = '🌙';
+        }
+    }
+
+    window.onload = function() {
+        carregarTema();
+    };
+</script>
+
+</body>
+</html>
