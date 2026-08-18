@@ -56,4 +56,4 @@ Por ser uma aplicação baseada em arquitetura Front-end pura (Client-side), nã
 
 1. Faça o clone deste repositório:
    ```bash
-   git clone [https://github.com/ghf-br/simulador-rendimento.git](https://github.com/ghf-br/simulador-rendimento.git)
+   git clone https://github.com/ghf-br/simulador-rendimento.git
