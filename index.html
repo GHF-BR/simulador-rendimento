@@ -5,23 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Ganho Garantido Pro</title>
     
-    <!-- Fonte Inter (Padrão de interfaces modernas) -->
+    <!-- Fonte Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Chart.js corrigido via CDN -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            /* Paleta Fintech Dark Mode */
             --bg-color: #121214;
             --surface-color: #202024;
             --surface-hover: #29292e;
-            --primary: #820ad1; /* Roxo Nubank */
+            --primary: #820ad1; 
             --primary-hover: #9c27b0;
-            --success: #04d361; /* Verde Neon */
+            --success: #04d361; 
             --text-main: #e1e1e6;
             --text-muted: #a8a8b3;
             --border-color: #323238;
@@ -94,7 +93,6 @@
             color: var(--text-main);
         }
 
-        /* Inputs estilizados */
         .input-wrapper {
             position: relative;
             display: flex;
@@ -131,7 +129,6 @@
             outline: none;
         }
 
-        /* Botões de atalho */
         .years-presets {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -161,29 +158,6 @@
             border-color: var(--primary);
         }
 
-        button.btn-main {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.1s;
-            margin-top: 10px;
-        }
-
-        button.btn-main:hover {
-            background-color: var(--primary-hover);
-        }
-
-        button.btn-main:active {
-            transform: scale(0.98);
-        }
-
-        /* Resumo Financeiro */
         .results-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -216,31 +190,13 @@
             color: var(--text-main);
         }
 
-        .result-value.success {
-            color: var(--success);
-        }
+        .result-value.success { color: var(--success); }
+        .result-value.primary { color: var(--primary); }
 
-        .result-value.primary {
-            color: var(--primary);
-        }
-
-        /* Container do Gráfico */
         .chart-container {
             position: relative;
             height: 350px;
             width: 100%;
-        }
-
-        /* Scrollbar estilizada */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-color);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
         }
     </style>
 </head>
@@ -255,11 +211,21 @@
 
     <!-- Painel Lateral de Controles -->
     <div class="card controls">
+        
+        <div class="input-group">
+            <label for="valorInicial">Valor Inicial (Já investido)</label>
+            <div class="input-wrapper">
+                <span class="prefix">R$</span>
+                <!-- type text e inputmode numeric ajudam teclados de celular e aceitam a máscara -->
+                <input type="text" inputmode="numeric" id="valorInicial" class="mascara-moeda" value="0,00">
+            </div>
+        </div>
+
         <div class="input-group">
             <label for="aporte">Aporte Mensal</label>
             <div class="input-wrapper">
                 <span class="prefix">R$</span>
-                <input type="number" id="aporte" value="500" min="1" step="50">
+                <input type="text" inputmode="numeric" id="aporte" class="mascara-moeda" value="500,00">
             </div>
         </div>
 
@@ -267,7 +233,7 @@
             <label for="taxa">Rentabilidade Anual</label>
             <div class="input-wrapper">
                 <span class="prefix">%</span>
-                <input type="number" id="taxa" value="10.5" min="0.1" step="0.1">
+                <input type="text" inputmode="decimal" id="taxa" class="mascara-taxa" value="10,5">
             </div>
         </div>
 
@@ -279,11 +245,10 @@
                 <button class="btn-preset" onclick="setAnos(30, this)">30 Anos</button>
             </div>
             <div class="input-wrapper">
-                <input type="number" id="anos" class="no-prefix" value="20" min="1" max="50" oninput="limparPresets()">
+                <input type="text" inputmode="numeric" id="anos" class="no-prefix mascara-numero" value="20">
             </div>
         </div>
 
-        <button class="btn-main" onclick="calcularJuros()">Calcular Projeção</button>
     </div>
 
     <!-- Painel Principal de Resultados -->
@@ -313,15 +278,101 @@
 
 <script>
     let meuGrafico = null;
-    
     Chart.defaults.color = '#a8a8b3';
     Chart.defaults.font.family = "'Inter', sans-serif";
 
+    // ----------------------------------------------------
+    // 1. MÁSCARAS DE DIGITAÇÃO E VALIDAÇÃO
+    // ----------------------------------------------------
+    
+    // Função para aplicar máscara de moeda (R$ 1.500,00)
+    function aplicarMascaraMoeda(e) {
+        let valor = e.target.value.replace(/\D/g, ''); // Remove tudo que não for número
+        if (valor === '') valor = '0';
+        
+        valor = (parseInt(valor, 10) / 100).toFixed(2) + '';
+        valor = valor.replace('.', ',');
+        valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        
+        e.target.value = valor;
+        salvarDados();
+        calcularJuros();
+    }
+
+    // Função para tratar a taxa (permite apenas números e vírgula)
+    function aplicarMascaraTaxa(e) {
+        let valor = e.target.value.replace(/[^0-9,]/g, '');
+        e.target.value = valor;
+        salvarDados();
+        calcularJuros();
+    }
+
+    // Função para tratar os anos (permite apenas números)
+    function aplicarMascaraNumero(e) {
+        let valor = e.target.value.replace(/\D/g, '');
+        e.target.value = valor;
+        salvarDados();
+        calcularJuros();
+        limparPresets();
+    }
+
+    // Adiciona os Event Listeners em todos os inputs
+    document.getElementById('valorInicial').addEventListener('input', aplicarMascaraMoeda);
+    document.getElementById('aporte').addEventListener('input', aplicarMascaraMoeda);
+    document.getElementById('taxa').addEventListener('input', aplicarMascaraTaxa);
+    document.getElementById('anos').addEventListener('input', aplicarMascaraNumero);
+
+    // Função auxiliar para converter "1.500,00" para número (1500.00)
+    function extrairNumero(id) {
+        let stringVal = document.getElementById(id).value;
+        if (!stringVal) return 0;
+        stringVal = stringVal.replace(/\./g, '').replace(',', '.');
+        return parseFloat(stringVal) || 0;
+    }
+
+    // ----------------------------------------------------
+    // 2. SALVAMENTO AUTOMÁTICO (LOCALSTORAGE)
+    // ----------------------------------------------------
+    function salvarDados() {
+        const dados = {
+            valorInicial: document.getElementById('valorInicial').value,
+            aporte: document.getElementById('aporte').value,
+            taxa: document.getElementById('taxa').value,
+            anos: document.getElementById('anos').value
+        };
+        localStorage.setItem('dadosFintechPro', JSON.stringify(dados));
+    }
+
+    function carregarDados() {
+        const dadosSalvos = localStorage.getItem('dadosFintechPro');
+        if (dadosSalvos) {
+            const dados = JSON.parse(dadosSalvos);
+            if(dados.valorInicial) document.getElementById('valorInicial').value = dados.valorInicial;
+            if(dados.aporte) document.getElementById('aporte').value = dados.aporte;
+            if(dados.taxa) document.getElementById('taxa').value = dados.taxa;
+            if(dados.anos) document.getElementById('anos').value = dados.anos;
+            
+            // Atualiza o botão de atalho visualmente baseado nos dados salvos
+            const botoes = document.querySelectorAll('.btn-preset');
+            botoes.forEach(b => {
+                if(b.innerText.includes(dados.anos)) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    // ----------------------------------------------------
+    // 3. CONTROLE DE ATALHOS
+    // ----------------------------------------------------
     function setAnos(valor, botao) {
         document.getElementById('anos').value = valor;
         const botoes = document.querySelectorAll('.btn-preset');
         botoes.forEach(b => b.classList.remove('active'));
         botao.classList.add('active');
+        salvarDados();
         calcularJuros();
     }
 
@@ -330,21 +381,26 @@
         botoes.forEach(b => b.classList.remove('active'));
     }
 
+    // ----------------------------------------------------
+    // 4. LÓGICA DE CÁLCULO FINANCEIRO
+    // ----------------------------------------------------
     const formatarMoeda = (valor) => {
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
     function calcularJuros() {
-        const aporteMensal = parseFloat(document.getElementById('aporte').value) || 0;
-        const taxaAnual = (parseFloat(document.getElementById('taxa').value) || 0) / 100;
+        // Extrai os valores formatados para números puros
+        const valorInicial = extrairNumero('valorInicial');
+        const aporteMensal = extrairNumero('aporte');
+        const taxaAnual = extrairNumero('taxa') / 100;
         const anos = parseInt(document.getElementById('anos').value) || 1;
         
         const taxaMensal = Math.pow(1 + taxaAnual, 1 / 12) - 1;
         
-        let saldoAcumulado = 0;
-        let totalInvestido = 0;
+        // Inicia o caixa com o valor que a pessoa já tem
+        let saldoAcumulado = valorInicial;
+        let totalInvestido = valorInicial;
         
-        // Arrays para alimentar o gráfico
         let historicoAnos = [];
         let dadosInvestido = [];
         let dadosJuros = [];
@@ -356,7 +412,6 @@
                 totalInvestido += aporteMensal;
             }
             
-            // Salva o "fotografia" do patrimônio ao final de cada ano
             historicoAnos.push(ano + 'º Ano');
             dadosInvestido.push(totalInvestido);
             dadosJuros.push(saldoAcumulado - totalInvestido);
@@ -364,24 +419,21 @@
         
         const lucroPuro = saldoAcumulado - totalInvestido;
         
-        // Atualiza UI textual
+        // Atualiza a tela
         document.getElementById('totalInvestido').innerText = formatarMoeda(totalInvestido);
         document.getElementById('totalLucro').innerText = formatarMoeda(lucroPuro);
         document.getElementById('saldoFinal').innerText = formatarMoeda(saldoAcumulado);
         
-        // Atualiza Gráfico
         atualizarGrafico(historicoAnos, dadosInvestido, dadosJuros);
     }
 
     function atualizarGrafico(labels, investido, juros) {
         const ctx = document.getElementById('graficoProjecao').getContext('2d');
         
-        if (meuGrafico) {
-            meuGrafico.destroy();
-        }
+        if (meuGrafico) meuGrafico.destroy();
         
         meuGrafico = new Chart(ctx, {
-            type: 'line', // Usando gráfico de linha empilhada (Área) para visual mais financeiro
+            type: 'line', 
             data: {
                 labels: labels,
                 datasets: [
@@ -389,7 +441,7 @@
                         label: 'Valor Investido',
                         data: investido,
                         borderColor: '#820ad1',
-                        backgroundColor: 'rgba(130, 10, 209, 0.4)', // Roxo Nubank transparente
+                        backgroundColor: 'rgba(130, 10, 209, 0.4)',
                         fill: true,
                         tension: 0.4,
                         pointRadius: 0,
@@ -399,7 +451,7 @@
                         label: 'Juros Acumulados',
                         data: juros,
                         borderColor: '#04d361',
-                        backgroundColor: 'rgba(4, 211, 97, 0.4)', // Verde Neon transparente
+                        backgroundColor: 'rgba(4, 211, 97, 0.4)',
                         fill: true,
                         tension: 0.4,
                         pointRadius: 0,
@@ -417,10 +469,7 @@
                 plugins: {
                     legend: {
                         position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            boxWidth: 8
-                        }
+                        labels: { usePointStyle: true, boxWidth: 8 }
                     },
                     tooltip: {
                         backgroundColor: '#202024',
@@ -437,18 +486,10 @@
                     }
                 },
                 scales: {
-                    x: {
-                        grid: {
-                            display: false,
-                            drawBorder: false
-                        }
-                    },
+                    x: { grid: { display: false, drawBorder: false } },
                     y: {
-                        stacked: true, // Empilha os valores para mostrar o patrimônio total
-                        grid: {
-                            color: '#323238',
-                            drawBorder: false
-                        },
+                        stacked: true, 
+                        grid: { color: '#323238', drawBorder: false },
                         ticks: {
                             callback: function(value) {
                                 if (value >= 1000000) return 'R$ ' + (value / 1000000).toFixed(1) + 'M';
@@ -462,8 +503,11 @@
         });
     }
     
-    // Inicia a primeira simulação ao carregar
-    window.onload = calcularJuros;
+    // Inicia a aplicação: Carrega dados salvos e calcula
+    window.onload = function() {
+        carregarDados();
+        calcularJuros();
+    };
 </script>
 
 </body>
