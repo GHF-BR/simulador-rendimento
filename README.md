@@ -37,5 +37,4 @@ Por ser uma aplicação baseada em HTML/CSS/JS puros, não há necessidade de in
    git clone [https://github.com/ghf-br/simulador-rendimento.git](https://github.com/ghf-br/simulador-rendimento.git)
 
 ```
-
- Desenvolvido por **GHF**
+Desenvolvido por **GHF**
