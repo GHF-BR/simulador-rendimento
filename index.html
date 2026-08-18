@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Ganho Garantido Pro</title>
     
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2224618675941987" crossorigin="anonymous"></script>
+
     <!-- Fonte Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -82,9 +85,6 @@
             border-radius: 12px; display: flex; justify-content: center; align-items: center;
         }
 
-        /* =========================================================
-           MENU DE NAVEGAÇÃO (TABS)
-           ========================================================= */
         .nav-tabs {
             grid-column: 1 / -1;
             display: flex;
@@ -164,59 +164,25 @@
         .dev-footer { grid-column: 1 / -1; text-align: center; padding: 20px 0; font-size: 13px; color: var(--text-muted); }
         .dev-footer strong { color: var(--primary); }
 
-        /* =========================================================
-           O SEGREDO PROFISSIONAL: CSS EXCLUSIVO PARA IMPRESSÃO/PDF
-           ========================================================= */
         @media print {
             body, .dashboard-container, .card, .result-box, details {
-                background: white !important;
-                color: black !important;
-                box-shadow: none !important;
+                background: white !important; color: black !important; box-shadow: none !important;
             }
-            
-            .controls, .btn-theme, .header-title p, summary, .dev-footer, .nav-tabs {
-                display: none !important;
-            }
-
-            .dashboard-container {
-                display: block !important;
-                padding: 0 !important;
-            }
-
-            .card.results {
-                border: none !important;
-                padding: 0 !important;
-            }
-
-            .header-title h1 {
-                font-size: 24px !important;
-                text-align: center;
-                margin-bottom: 30px !important;
-                color: #820ad1 !important;
-            }
-
+            .controls, .btn-theme, .header-title p, summary, .dev-footer, .nav-tabs { display: none !important; }
+            .dashboard-container { display: block !important; padding: 0 !important; }
+            .card.results { border: none !important; padding: 0 !important; }
+            .header-title h1 { font-size: 24px !important; text-align: center; margin-bottom: 30px !important; color: #820ad1 !important; }
             .result-box { border: 1px solid #ddd !important; }
-
             .result-title { color: #555 !important; }
             .result-value { color: black !important; }
             .result-value.success { color: #05a04c !important; }
             .result-value.primary { color: #820ad1 !important; }
-
             details { border: none !important; }
             .table-container { display: block !important; }
             th, td { color: black !important; border-bottom: 1px solid #eee !important; }
             th { background-color: #f9f9f9 !important; font-weight: bold !important; }
-
-            .chart-container {
-                height: 280px !important;
-                margin-bottom: 40px !important;
-                page-break-inside: avoid;
-            }
-
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
+            .chart-container { height: 280px !important; margin-bottom: 40px !important; page-break-inside: avoid; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
@@ -241,7 +207,6 @@
 
     <!-- Painel Lateral de Controles -->
     <div class="card controls">
-        
         <div class="input-group">
             <label for="valorInicial">Valor Inicial (Já investido)</label>
             <div class="input-wrapper">
@@ -278,15 +243,11 @@
             </div>
         </div>
         
-        <button class="btn-export" onclick="gerarPDF()">
-            📄 Gerar PDF Nativo
-        </button>
-
+        <button class="btn-export" onclick="gerarPDF()">📄 Gerar PDF Nativo</button>
     </div>
 
     <!-- Painel Principal de Resultados -->
     <div class="card results">
-        
         <div class="results-grid">
             <div class="result-box">
                 <div class="result-title">Valor Investido (Bolso)</div>
@@ -306,7 +267,6 @@
             <canvas id="graficoProjecao"></canvas>
         </div>
 
-        <!-- Tabela Expansível -->
         <details id="tabelaDetalhes">
             <summary>Ver tabela de evolução ano a ano</summary>
             <div class="table-container">
@@ -319,19 +279,13 @@
                             <th>Saldo Total</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelaCorpo">
-                        <!-- Linhas geradas via JS -->
-                    </tbody>
+                    <tbody id="tabelaCorpo"></tbody>
                 </table>
             </div>
         </details>
     </div>
 
-    <!-- Assinatura -->
-    <div class="dev-footer">
-        Developed by <strong>GHF</strong>
-    </div>
-
+    <div class="dev-footer">Developed by <strong>GHF</strong></div>
 </div>
 
 <script>
@@ -490,7 +444,6 @@
 
     function atualizarGrafico(labels, investido, juros) {
         const ctx = document.getElementById('graficoProjecao').getContext('2d');
-        
         const estiloCorpo = getComputedStyle(document.body);
         const corTexto = estiloCorpo.getPropertyValue('--text-muted').trim();
         const corGrid = estiloCorpo.getPropertyValue('--chart-grid').trim();
@@ -570,9 +523,7 @@
         }
     });
 
-    window.addEventListener('afterprint', () => {
-        calcularJuros(); 
-    });
+    window.addEventListener('afterprint', () => { calcularJuros(); });
     
     window.onload = function() {
         carregarTema();
