@@ -18,7 +18,6 @@
 
     <style>
         :root {
-            /* Tema Escuro (Padrão) */
             --bg-color: #121214;
             --surface-color: #202024;
             --surface-hover: #29292e;
@@ -31,7 +30,6 @@
             --chart-grid: #323238;
         }
 
-        /* Tema Claro */
         body.light-theme {
             --bg-color: #f4f6f9;
             --surface-color: #ffffff;
@@ -87,7 +85,6 @@
             transition: background-color 0.3s, border-color 0.3s;
         }
 
-        /* Header e Botão de Tema */
         .header-top {
             grid-column: 1 / -1;
             display: flex;
@@ -95,36 +92,16 @@
             align-items: flex-start;
         }
 
-        .header-title h1 {
-            font-size: 28px;
-            margin: 0 0 8px 0;
-            font-weight: 700;
-        }
-
-        .header-title p {
-            color: var(--text-muted);
-            margin: 0;
-            font-size: 15px;
-        }
+        .header-title h1 { font-size: 28px; margin: 0 0 8px 0; font-weight: 700; }
+        .header-title p { color: var(--text-muted); margin: 0; font-size: 15px; }
 
         .btn-theme {
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            font-size: 20px;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--surface-color); border: 1px solid var(--border-color);
+            color: var(--text-main); font-size: 20px; cursor: pointer; padding: 10px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
             transition: all 0.3s;
         }
-
-        .btn-theme:hover {
-            background: var(--surface-hover);
-            transform: scale(1.05);
-        }
+        .btn-theme:hover { background: var(--surface-hover); transform: scale(1.05); }
 
         .input-group { margin-bottom: 24px; }
         label { display: block; font-weight: 500; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
@@ -165,7 +142,6 @@
 
         .chart-container { position: relative; height: 350px; width: 100%; margin-bottom: 24px;}
 
-        /* Botão Exportar PDF */
         .btn-export {
             width: 100%; background-color: var(--surface-hover); color: var(--text-main);
             border: 1px solid var(--border-color); padding: 14px; font-size: 15px; font-weight: 600;
@@ -173,7 +149,6 @@
         }
         .btn-export:hover { border-color: var(--primary); color: var(--primary); }
 
-        /* Tabela Expansível */
         details { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-top: 20px; transition: all 0.3s; }
         summary { font-weight: 600; cursor: pointer; color: var(--primary); outline: none; font-size: 15px; }
         
@@ -184,7 +159,7 @@
         tr:last-child td { border-bottom: none; }
 
         .dev-footer {
-            grid-column: 1 / -1; text-align: center; padding-top: 10px; padding-bottom: 20px;
+            grid-column: 1 / -1; text-align: center; padding-top: 20px; padding-bottom: 10px;
             font-size: 13px; color: var(--text-muted); letter-spacing: 0.5px;
         }
         .dev-footer strong { color: var(--primary); font-weight: 700; }
@@ -203,7 +178,7 @@
     </div>
 
     <!-- Painel Lateral de Controles -->
-    <div class="card controls" data-html2canvas-ignore="true">
+    <div class="card controls" id="painelControles">
         
         <div class="input-group">
             <label for="valorInicial">Valor Inicial (Já investido)</label>
@@ -248,7 +223,7 @@
     </div>
 
     <!-- Painel Principal de Resultados -->
-    <div class="card results">
+    <div class="card results" id="painelResultados">
         
         <div class="results-grid">
             <div class="result-box">
@@ -270,7 +245,7 @@
         </div>
 
         <!-- Tabela Expansível -->
-        <details>
+        <details id="tabelaDetalhes">
             <summary>Ver tabela de evolução ano a ano</summary>
             <div class="table-container">
                 <table>
@@ -291,7 +266,7 @@
     </div>
 
     <!-- Assinatura -->
-    <div class="dev-footer">
+    <div class="dev-footer" id="rodapeDev">
         Developed by <strong>GHF</strong>
     </div>
 
@@ -307,7 +282,7 @@
         const isLight = document.body.classList.toggle('light-theme');
         document.getElementById('btnTheme').innerText = isLight ? '🌙' : '☀️';
         localStorage.setItem('theme_GHF', isLight ? 'light' : 'dark');
-        calcularJuros(); // Recalcula para atualizar as cores do gráfico
+        calcularJuros(); 
     }
 
     function carregarTema() {
@@ -319,20 +294,50 @@
     }
 
     // ==========================================
-    // EXPORTAR PARA PDF
+    // EXPORTAR PARA PDF (CORRIGIDO)
     // ==========================================
     function exportarPDF() {
-        const elemento = document.getElementById('area-relatorio');
+        // Elementos da interface
+        const container = document.getElementById('area-relatorio');
+        const controles = document.getElementById('painelControles');
+        const botaoTema = document.getElementById('btnTheme');
+        const tabela = document.getElementById('tabelaDetalhes');
         
+        // 1. Preparação Mágica do Layout para PDF
+        // Removemos o grid temporariamente e escondemos os controles
+        const gridOriginal = container.style.display;
+        controles.style.display = 'none';
+        botaoTema.style.display = 'none';
+        container.style.display = 'block'; // Transforma em um bloco contínuo para evitar buracos
+
+        // Garante que a tabela saia aberta no PDF, se estiver fechada
+        const tabelaEstavaAberta = tabela.open;
+        tabela.open = true;
+
+        // Pega a cor de fundo do tema atual (impede PDF de ficar com fundo transparente bugado)
+        const bgColor = getComputedStyle(document.body).backgroundColor;
+
+        // Configurações do PDF
         const opcoes = {
-            margin:       10,
-            filename:     'Relatorio_Investimentos_GHF.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
+            margin:       [15, 10, 15, 10], // Margem de respiro [top, left, bottom, right]
+            filename:     'Relatorio_Investimentos.pdf',
+            image:        { type: 'jpeg', quality: 1.0 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                backgroundColor: bgColor,
+                windowWidth: 1000 // Força uma largura fixa para evitar gráficos achatados
+            },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        html2pdf().set(opcoes).from(elemento).save();
+        // 2. Gera o PDF e restaura o layout assim que terminar
+        html2pdf().set(opcoes).from(container).save().then(() => {
+            controles.style.display = '';
+            botaoTema.style.display = '';
+            container.style.display = gridOriginal;
+            tabela.open = tabelaEstavaAberta; // Devolve a tabela ao estado anterior
+        });
     }
 
     // ==========================================
@@ -438,7 +443,7 @@
         let dadosJuros = [];
         
         const tabelaCorpo = document.getElementById('tabelaCorpo');
-        tabelaCorpo.innerHTML = ''; // Limpa a tabela
+        tabelaCorpo.innerHTML = ''; 
         
         for (let ano = 1; ano <= anos; ano++) {
             for (let mes = 1; mes <= 12; mes++) {
@@ -453,7 +458,6 @@
             dadosInvestido.push(totalInvestido);
             dadosJuros.push(jurosNoAno);
 
-            // Popula a tabela
             let tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>Ano ${ano}</td>
@@ -476,7 +480,6 @@
     function atualizarGrafico(labels, investido, juros) {
         const ctx = document.getElementById('graficoProjecao').getContext('2d');
         
-        // Pega as cores corretas baseadas no tema atual
         const estiloCorpo = getComputedStyle(document.body);
         const corTexto = estiloCorpo.getPropertyValue('--text-muted').trim();
         const corGrid = estiloCorpo.getPropertyValue('--chart-grid').trim();
@@ -516,6 +519,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: { duration: 0 }, // Evita que o gráfico pisque ou corte na hora de tirar o PDF
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
                     legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, color: corTexto } },
@@ -549,7 +553,6 @@
         });
     }
     
-    // Inicia tudo ao carregar
     window.onload = function() {
         carregarTema();
         carregarDados();
