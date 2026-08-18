@@ -44,8 +44,8 @@
         .btn-theme { background: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-main); font-size: 20px; cursor: pointer; padding: 10px; border-radius: 12px; }
 
         /* Menu Tabs */
-        .nav-tabs { grid-column: 1 / -1; display: flex; gap: 12px; margin-bottom: 10px; border-bottom: 2px solid var(--border-color); }
-        .nav-tab { padding: 12px 24px; color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 15px; border-bottom: 3px solid transparent; transition: all 0.3s; margin-bottom: -2px; }
+        .nav-tabs { grid-column: 1 / -1; display: flex; gap: 12px; margin-bottom: 10px; border-bottom: 2px solid var(--border-color); overflow-x: auto; }
+        .nav-tab { padding: 12px 24px; color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 15px; border-bottom: 3px solid transparent; transition: all 0.3s; margin-bottom: -2px; white-space: nowrap; }
         .nav-tab:hover { color: var(--text-main); background: var(--surface-hover); border-radius: 8px 8px 0 0; }
         .nav-tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
 
@@ -80,13 +80,11 @@
         @media print {
             body, .dashboard-container, .card, .result-box { background: white !important; color: black !important; box-shadow: none !important; }
             
-            /* Esconde botões, abas e painel interativo inteiro */
             .btn-theme, .header-title p, .nav-tabs, .dev-footer, .btn-export, .controls { display: none !important; }
             
             .dashboard-container { display: block !important; padding: 0 !important; }
             .header-title h1 { font-size: 24px !important; text-align: center; margin-bottom: 30px !important; color: #820ad1 !important; }
             
-            /* EXIBE O RESUMO EM TEXTO PURO CRIADO PELO JAVASCRIPT */
             .print-summary { 
                 display: block !important; 
                 margin-bottom: 30px !important; 
@@ -97,7 +95,6 @@
             .print-label { color: #555 !important; font-size: 14px !important; }
             .print-val { font-weight: 700 !important; color: black !important; font-size: 16px !important; }
 
-            /* CAIXAS DE RESULTADOS LADO A LADO */
             .card.results { border: none !important; padding: 0 !important; }
             .results-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 20px !important; }
             .result-box { border: 1px solid #ddd !important; margin-bottom: 0 !important; padding: 20px !important; }
@@ -125,10 +122,11 @@
     <!-- Menu de Navegação -->
     <nav class="nav-tabs">
         <a href="index.html" class="nav-tab">Projeção de Juros</a>
-        <a href="independencia.html" class="nav-tab active">Meta de Renda (Aposentadoria)</a>
+        <a href="independencia.html" class="nav-tab active">Meta de Renda</a>
+        <a href="sobre.html" class="nav-tab">Sobre o Projeto</a>
     </nav>
 
-    <!-- Painel Lateral de Controles (Escondido no PDF) -->
+    <!-- Painel Lateral de Controles -->
     <div class="card controls">
         <div class="input-group">
             <label for="metaRenda">Meta de Renda Mensal Desejada</label>
@@ -165,10 +163,8 @@
         <button class="btn-export" onclick="gerarPDF()">📄 Exportar Relatório</button>
     </div>
 
-    <!-- CABEÇALHO INVISÍVEL: SÓ APARECE NO PDF -->
-    <div id="printSummary" class="print-summary">
-        <!-- O JS preenche isso aqui automaticamente na hora de imprimir -->
-    </div>
+    <!-- CABEÇALHO INVISÍVEL PARA PDF -->
+    <div id="printSummary" class="print-summary"></div>
 
     <!-- Painel Principal de Resultados -->
     <div class="card results">
@@ -197,9 +193,6 @@
 </div>
 
 <script>
-    // ==========================================
-    // TEMA CLARO / ESCURO
-    // ==========================================
     function toggleTheme() {
         const isLight = document.body.classList.toggle('light-theme');
         document.getElementById('btnTheme').innerText = isLight ? '🌙' : '☀️';
@@ -214,17 +207,12 @@
         }
     }
 
-    // ==========================================
-    // EXPORTAR PDF (Solução Robusta Injetando HTML)
-    // ==========================================
     window.addEventListener('beforeprint', () => {
-        // Pega os valores que já estão formatados visualmente
         const metaRenda = document.getElementById('metaRenda').value;
         const valorInicial = document.getElementById('valorInicial').value;
         const aporte = document.getElementById('aporte').value;
         const taxa = document.getElementById('taxa').value;
 
-        // Monta o resumo em texto puro na div invisível
         document.getElementById('printSummary').innerHTML = `
             <div style="font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #820ad1; text-transform: uppercase;">Parâmetros da Simulação</div>
             <div class="print-row"><span class="print-label">Meta de Renda Mensal Desejada:</span> <span class="print-val">R$ ${metaRenda}</span></div>
@@ -241,9 +229,6 @@
         document.title = tituloOriginal;
     }
 
-    // ==========================================
-    // MÁSCARAS DE DIGITAÇÃO
-    // ==========================================
     function aplicarMascaraMoeda(e) {
         let valor = e.target.value.replace(/\D/g, ''); 
         if (valor === '') valor = '0';
@@ -272,9 +257,6 @@
         return parseFloat(stringVal) || 0;
     }
 
-    // ==========================================
-    // LOCALSTORAGE (SALVAR DADOS)
-    // ==========================================
     function salvarDados() {
         const dados = {
             metaRenda: document.getElementById('metaRenda').value,
@@ -300,9 +282,6 @@
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
-    // ==========================================
-    // CÁLCULO DE INDEPENDÊNCIA 
-    // ==========================================
     function calcularIndependencia() {
         const rendaDesejada = extrairNumero('metaRenda');
         const valorInicial = extrairNumero('valorInicial');
