@@ -103,7 +103,7 @@
             font-size: 15px;
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
-            margin-bottom: -2px; /* Sobrepõe a borda do container */
+            margin-bottom: -2px; 
             white-space: nowrap;
         }
 
@@ -168,19 +168,16 @@
            O SEGREDO PROFISSIONAL: CSS EXCLUSIVO PARA IMPRESSÃO/PDF
            ========================================================= */
         @media print {
-            /* Força tudo para fundo branco e texto preto (Estilo Relatório A4) */
             body, .dashboard-container, .card, .result-box, details {
                 background: white !important;
                 color: black !important;
                 box-shadow: none !important;
             }
             
-            /* Esconde os controles que não devem sair no papel/PDF */
             .controls, .btn-theme, .header-title p, summary, .dev-footer, .nav-tabs {
                 display: none !important;
             }
 
-            /* Remove o grid para a folha A4 fluir de cima para baixo */
             .dashboard-container {
                 display: block !important;
                 padding: 0 !important;
@@ -198,29 +195,24 @@
                 color: #820ad1 !important;
             }
 
-            .result-box {
-                border: 1px solid #ddd !important;
-            }
+            .result-box { border: 1px solid #ddd !important; }
 
             .result-title { color: #555 !important; }
             .result-value { color: black !important; }
             .result-value.success { color: #05a04c !important; }
             .result-value.primary { color: #820ad1 !important; }
 
-            /* Força a tabela a aparecer inteira e estilizada */
             details { border: none !important; }
             .table-container { display: block !important; }
             th, td { color: black !important; border-bottom: 1px solid #eee !important; }
             th { background-color: #f9f9f9 !important; font-weight: bold !important; }
 
-            /* Mantém o gráfico em um tamanho amigável para A4 */
             .chart-container {
                 height: 280px !important;
                 margin-bottom: 40px !important;
                 page-break-inside: avoid;
             }
 
-            /* Permite o navegador forçar as cores exatas que definimos acima */
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -243,7 +235,8 @@
     <!-- Menu de Navegação -->
     <nav class="nav-tabs">
         <a href="index.html" class="nav-tab active">Projeção de Juros</a>
-        <a href="independencia.html" class="nav-tab">Meta de Renda (Aposentadoria)</a>
+        <a href="independencia.html" class="nav-tab">Meta de Renda</a>
+        <a href="sobre.html" class="nav-tab">Sobre o Projeto</a>
     </nav>
 
     <!-- Painel Lateral de Controles -->
@@ -344,9 +337,6 @@
 <script>
     let meuGrafico = null;
 
-    // ==========================================
-    // TEMA CLARO / ESCURO
-    // ==========================================
     function toggleTheme() {
         const isLight = document.body.classList.toggle('light-theme');
         document.getElementById('btnTheme').innerText = isLight ? '🌙' : '☀️';
@@ -362,27 +352,14 @@
         }
     }
 
-    // ==========================================
-    // EXPORTAR PDF (Solução Nativa)
-    // ==========================================
     function gerarPDF() {
-        // Garante que a tabela está aberta antes de imprimir para sair no relatório
         document.getElementById('tabelaDetalhes').open = true;
-        
-        // Sugere o nome do arquivo mudando o title da página temporariamente
         const tituloOriginal = document.title;
         document.title = "Relatorio_Investimentos";
-        
-        // Chama a caixa de impressão/PDF nativa do Windows/Mac/Android/iOS
         window.print();
-        
-        // Devolve o título original
         document.title = tituloOriginal;
     }
 
-    // ==========================================
-    // MÁSCARAS DE DIGITAÇÃO
-    // ==========================================
     function aplicarMascaraMoeda(e) {
         let valor = e.target.value.replace(/\D/g, ''); 
         if (valor === '') valor = '0';
@@ -417,9 +394,6 @@
         return parseFloat(stringVal) || 0;
     }
 
-    // ==========================================
-    // LOCALSTORAGE (SALVAR DADOS)
-    // ==========================================
     function salvarDados() {
         const dados = {
             valorInicial: document.getElementById('valorInicial').value,
@@ -464,9 +438,6 @@
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
-    // ==========================================
-    // CÁLCULO E RENDERIZAÇÃO
-    // ==========================================
     function calcularJuros() {
         const valorInicial = extrairNumero('valorInicial');
         const aporteMensal = extrairNumero('aporte');
@@ -590,7 +561,6 @@
         });
     }
 
-    // Se houver alteração de cor antes da impressão para o gráfico ficar visível
     window.addEventListener('beforeprint', () => {
         if(meuGrafico) {
             meuGrafico.options.scales.x.ticks.color = '#000';
@@ -601,7 +571,7 @@
     });
 
     window.addEventListener('afterprint', () => {
-        calcularJuros(); // Recalcula para devolver as cores pro modo escuro/claro original
+        calcularJuros(); 
     });
     
     window.onload = function() {
