@@ -3,47 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Ganho Garantido</title>
+    <title>Calculadora de Ganho Garantido Pro</title>
+    <!-- Incluindo o Chart.js para renderizar o gráfico de barras -->
+    <script src="https://jsdelivr.net"></script>
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --primary: #04d361;
-            --primary-dark: #04b352;
-            --text: #2e384d;
-            --border: #e2e8f0;
+            --primary: #1F4E78;
+            --success: #2E7D32;
+            --accent: #E2EFDA;
+            --background: #f4f6f9;
+            --dark: #2c3e50;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: #333;
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
         }
         .container {
-            max-width: 500px;
-            width: 100%;
-            background: var(--card-bg);
+            background: white;
             padding: 30px;
             border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 600px;
+            width: 100%;
         }
-        h1 { font-size: 24px; margin-bottom: 8px; text-align: center; }
-        p.subtitle { text-align: center; color: #718096; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
-        .input-group { margin-bottom: 16px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        h1 {
+            color: var(--primary);
+            font-size: 26px;
+            margin-top: 0;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--dark);
+        }
         input {
             width: 100%;
             padding: 12px;
-            border: 1px solid var(--border);
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 16px;
+            transition: border-color 0.2s;
         }
-        input:focus { border-color: var(--primary); outline: none; }
-        button {
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        /* Botões de atalho de anos */
+        .years-presets {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .btn-preset {
+            flex: 1;
+            background-color: #f0f4f8;
+            color: var(--primary);
+            border: 2px solid transparent;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-preset:hover {
+            background-color: var(--accent);
+        }
+        .btn-preset.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        button.btn-main {
             width: 100%;
             background-color: var(--primary);
             color: white;
@@ -56,107 +98,182 @@
             transition: background 0.2s;
             margin-top: 10px;
         }
-        button:hover { background-color: var(--primary-dark); }
-        .results {
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 2px dashed var(--border);
+        button.btn-main:hover {
+            background-color: #153552;
         }
-        .result-box {
-            background: #f7fafc;
+        .results {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+        .result-card {
+            background: #f8fafc;
             padding: 15px;
             border-radius: 8px;
-            text-align: center;
-            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .highlight {
             font-weight: bold;
-            color: var(--primary-dark);
-            margin-bottom: 15px;
+            color: var(--success);
+            font-size: 20px;
         }
-        table {
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 260px;
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 14px;
         }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background-color: #f7fafc; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📈 Simulador de Ganho Garantido</h1>
-    <p class="subtitle">A matemática dos juros compostos a seu favor</p>
+    <h1>📈 Ganho Garantido Pro</h1>
+    <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 25px;">
+        A simulação visual do seu futuro financeiro protegido.
+    </p>
     
     <div class="input-group">
-        <label for="inicial">Aporte Inicial (R$)</label>
-        <input type="number" id="inicial" value="100" placeholder="Ex: 100">
-    </div>
-    
-    <div class="input-group">
-        <label for="mensal">Aporte Mensal (R$)</label>
-        <input type="number" id="mensal" value="50" placeholder="Ex: 50">
-    </div>
-    
-    <div class="input-group">
-        <label for="taxa">Taxa de Lucro Anual (%)</label>
-        <input type="number" id="taxa" value="10.75" step="0.01">
+        <label for="aporte">Quanto você vai guardar por mês (R$):</label>
+        <input type="number" id="aporte" value="50" min="1" step="5">
     </div>
 
-    <button onclick="calcular()">Simular Futuro Garantido</button>
+    <div class="input-group">
+        <label for="taxa">Taxa de Rendimento Anual (%):</label>
+        <input type="number" id="taxa" value="10.5" min="0.1" step="0.1">
+    </div>
 
-    <div class="results" id="resultados" style="display:none;">
-        <div class="result-box" id="totalFinal"></div>
-        
-        <label>Evolução de 1 a 5 Anos:</label>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ano</th>
-                    <th>Total Guardado</th>
-                    <th>Total com Juros</th>
-                </tr>
-            </thead>
-            <tbody id="tabelaCorpo"></tbody>
-        </table>
+    <div class="input-group">
+        <label>Por quantos anos deseja simular?</label>
+        <div class="years-presets">
+            <button class="btn-preset" onclick="setAnos(10, this)">10 Anos</button>
+            <button class="btn-preset active" onclick="setAnos(20, this)">20 Anos</button>
+            <button class="btn-preset" onclick="setAnos(30, this)">30 Anos</button>
+        </div>
+        <input type="number" id="anos" value="20" min="1" max="50" oninput="limparPresets()">
+    </div>
+
+    <button class="btn-main" onclick="calcularJuros()">Simular Futuro Financeiro</button>
+
+    <div class="results">
+        <div class="result-card">
+            <div class="result-row">
+                <span>Dinheiro tirado do bolso:</span>
+                <span id="totalInvestido" style="font-weight: bold; color: #555;">R$ 0,00</span>
+            </div>
+            <div class="result-row">
+                <span>Lucro puro dos Juros:</span>
+                <span id="totalLucro" style="color: var(--success); font-weight: bold;">R$ 0,00</span>
+            </div>
+            <div class="result-row" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
+                <strong>Saldo Total Acumulado:</strong>
+                <span id="saldoFinal" class="highlight">R$ 0,00</span>
+            </div>
+        </div>
+
+        <!-- Elemento do gráfico de barras -->
+        <div class="chart-container">
+            <canvas id="graficoBarras"></style></canvas>
+        </div>
     </div>
 </div>
 
 <script>
-function calcular() {
-    const inicial = parseFloat(document.getElementById('inicial').value) || 0;
-    const mensal = parseFloat(document.getElementById('mensal').value) || 0;
-    const taxaAnual = parseFloat(document.getElementById('taxa').value) || 0;
-    
-    // Converte taxa anual para taxa mensal equivalente em juros compostos
-    const taxaMensal = Math.pow((1 + (taxaAnual / 100)), (1 / 12)) - 1;
-    
-    let saldo = inicial;
-    let totalInvestidoDoBolso = inicial;
-    let tabelaHTML = '';
-    
-    // Simula por 5 anos (60 meses)
-    for (let mes = 1; mes <= 60; mes++) {
-        saldo = (saldo + mensal) * (1 + taxaMensal);
-        totalInvestidoDoBolso += mensal;
+    let meuGrafico = null;
+
+    // Controla os botões de atalho de anos
+    function setAnos(valor, botao) {
+        document.getElementById('anos').value = valor;
+        const botoes = document.querySelectorAll('.btn-preset');
+        botoes.forEach(b => b.classList.remove('active'));
+        botao.classList.add('active');
+        calcularJuros();
+    }
+
+    // Se o usuário digitar um valor manualmente no campo, desmarca os botões de atalho
+    function limparPresets() {
+        const botoes = document.querySelectorAll('.btn-preset');
+        botoes.forEach(b => b.classList.remove('active'));
+    }
+
+    function calcularJuros() {
+        const aporteMensal = parseFloat(document.getElementById('aporte').value) || 0;
+        const taxaAnual = (parseFloat(document.getElementById('taxa').value) || 0) / 100;
+        const anos = parseInt(document.getElementById('anos').value) || 1;
         
-        // A cada 12 meses (1 ano), guarda o resultado para colocar na tabela
-        if (mes % 12 === 0) {
-            const ano = mes / 12;
-            tabelaHTML += `
-                <tr>
-                    <td>${ano}º Ano</td>
-                    <td>R$ ${totalInvestidoDoBolso.toFixed(2)}</td>
-                    <td><strong>R$ ${saldo.toFixed(2)}</strong></td>
-                </tr>
-            `;
+        const totalMeses = anos * 12;
+        const taxaMensal = Math.pow(1 + taxaAnual, 1 / 12) - 1;
+        
+        let saldoAcumulado = 0;
+        let totalInvestidoDoBolso = 0;
+        
+        for (let i = 0; i < totalMeses; i++) {
+            let rendimentoDoMes = saldoAcumulado * taxaMensal;
+            saldoAcumulado += aporteMensal + rendimentoDoMes;
+            totalInvestidoDoBolso += aporteMensal;
         }
+        
+        const lucroPuro = saldoAcumulado - totalInvestidoDoBolso;
+        
+        // Formatação de Moeda
+        const formatar = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        document.getElementById('totalInvestido').innerText = formatar(totalInvestidoDoBolso);
+        document.getElementById('totalLucro').innerText = formatar(lucroPuro);
+        document.getElementById('saldoFinal').innerText = formatar(saldoAcumulado);
+        
+        // Atualiza ou inicializa o gráfico visual de barras
+        atualizarGrafico(totalInvestidoDoBolso, lucroPuro);
+    }
+
+    function atualizarGrafico(investido, lucro) {
+        const ctx = document.getElementById('graficoBarras').getContext('2d');
+        
+        // Se o gráfico já existe, destrói o anterior para renderizar o novo sem bugs visuais
+        if (meuGrafico) {
+            meuGrafico.destroy();
+        }
+        
+        meuGrafico = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Seu Bolso', 'Lucro Juros'],
+                datasets: [{
+                    label: 'Distribuição Financeira (R$)',
+                    data: [investido.toFixed(2), lucro.toFixed(2)],
+                    backgroundColor: ['#555555', '#2E7D32'],
+                    borderWidth: 0,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
     
-    document.getElementById('totalFinal').innerText = `Em 5 anos você terá: R$ ${saldo.toFixed(2)}`;
-    document.getElementById('tabelaCorpo').innerHTML = tableHTML = tabelaHTML;
-    document.getElementById('resultados').style.display = 'block';
-}
+    // Calcula automaticamente na primeira abertura da página
+    window.onload = calcularJuros;
 </script>
 
 </body>
