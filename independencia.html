@@ -71,27 +71,33 @@
         .dev-footer { grid-column: 1 / -1; text-align: center; padding: 20px 0; font-size: 13px; color: var(--text-muted); }
         .dev-footer strong { color: var(--primary); }
 
+        /* Esconde o resumo na tela normal */
+        .print-summary { display: none; }
+
         /* =========================================================
            CSS EXCLUSIVO PARA IMPRESSÃO/PDF
            ========================================================= */
         @media print {
             body, .dashboard-container, .card, .result-box { background: white !important; color: black !important; box-shadow: none !important; }
             
-            /* Esconde botões, abas e textos auxiliares */
-            .btn-theme, .header-title p, .nav-tabs, .dev-footer, .btn-export { display: none !important; }
+            /* Esconde botões, abas e painel interativo inteiro */
+            .btn-theme, .header-title p, .nav-tabs, .dev-footer, .btn-export, .controls { display: none !important; }
             
             .dashboard-container { display: block !important; padding: 0 !important; }
-            .header-title h1 { font-size: 24px !important; text-align: center; margin-bottom: 40px !important; color: #820ad1 !important; }
+            .header-title h1 { font-size: 24px !important; text-align: center; margin-bottom: 30px !important; color: #820ad1 !important; }
             
-            /* TRANSFORMA OS INPUTS NUMA LISTA DE DADOS TEXTUAIS */
-            .controls { display: block !important; padding: 0 0 20px 0 !important; border: none !important; margin-bottom: 30px !important; border-bottom: 2px solid #eee !important; border-radius: 0 !important; }
-            .input-group { display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 12px !important; border-bottom: 1px dashed #eee !important; padding-bottom: 8px !important; }
-            label { margin-bottom: 0 !important; font-size: 14px !important; color: #555 !important; }
-            .input-wrapper { display: flex !important; align-items: center !important; width: 150px !important; justify-content: flex-end !important; }
-            .prefix { position: static !important; margin-right: 5px !important; color: black !important; font-weight: 700 !important; }
-            input { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; text-align: right !important; color: black !important; font-weight: 700 !important; font-size: 16px !important; }
-            
-            /* AJUSTA AS CAIXAS DE RESULTADO PARA A4 (LADO A LADO) */
+            /* EXIBE O RESUMO EM TEXTO PURO CRIADO PELO JAVASCRIPT */
+            .print-summary { 
+                display: block !important; 
+                margin-bottom: 30px !important; 
+                padding-bottom: 20px !important; 
+                border-bottom: 2px solid #ddd !important; 
+            }
+            .print-row { display: flex !important; justify-content: space-between !important; border-bottom: 1px dashed #eee !important; padding: 10px 0 !important; }
+            .print-label { color: #555 !important; font-size: 14px !important; }
+            .print-val { font-weight: 700 !important; color: black !important; font-size: 16px !important; }
+
+            /* CAIXAS DE RESULTADOS LADO A LADO */
             .card.results { border: none !important; padding: 0 !important; }
             .results-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 20px !important; }
             .result-box { border: 1px solid #ddd !important; margin-bottom: 0 !important; padding: 20px !important; }
@@ -122,9 +128,8 @@
         <a href="independencia.html" class="nav-tab active">Meta de Renda (Aposentadoria)</a>
     </nav>
 
-    <!-- Painel Lateral de Controles -->
+    <!-- Painel Lateral de Controles (Escondido no PDF) -->
     <div class="card controls">
-        
         <div class="input-group">
             <label for="metaRenda">Meta de Renda Mensal Desejada</label>
             <div class="input-wrapper">
@@ -158,6 +163,11 @@
         </div>
         
         <button class="btn-export" onclick="gerarPDF()">📄 Exportar Relatório</button>
+    </div>
+
+    <!-- CABEÇALHO INVISÍVEL: SÓ APARECE NO PDF -->
+    <div id="printSummary" class="print-summary">
+        <!-- O JS preenche isso aqui automaticamente na hora de imprimir -->
     </div>
 
     <!-- Painel Principal de Resultados -->
@@ -205,8 +215,25 @@
     }
 
     // ==========================================
-    // EXPORTAR PDF
+    // EXPORTAR PDF (Solução Robusta Injetando HTML)
     // ==========================================
+    window.addEventListener('beforeprint', () => {
+        // Pega os valores que já estão formatados visualmente
+        const metaRenda = document.getElementById('metaRenda').value;
+        const valorInicial = document.getElementById('valorInicial').value;
+        const aporte = document.getElementById('aporte').value;
+        const taxa = document.getElementById('taxa').value;
+
+        // Monta o resumo em texto puro na div invisível
+        document.getElementById('printSummary').innerHTML = `
+            <div style="font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #820ad1; text-transform: uppercase;">Parâmetros da Simulação</div>
+            <div class="print-row"><span class="print-label">Meta de Renda Mensal Desejada:</span> <span class="print-val">R$ ${metaRenda}</span></div>
+            <div class="print-row"><span class="print-label">Dinheiro Guardado Hoje:</span> <span class="print-val">R$ ${valorInicial}</span></div>
+            <div class="print-row"><span class="print-label">Aporte Mensal Estimado:</span> <span class="print-val">R$ ${aporte}</span></div>
+            <div class="print-row"><span class="print-label">Rentabilidade Anual Estimada:</span> <span class="print-val">${taxa}%</span></div>
+        `;
+    });
+
     function gerarPDF() {
         const tituloOriginal = document.title;
         document.title = "Relatorio_Independencia_Financeira";
@@ -274,7 +301,7 @@
     };
 
     // ==========================================
-    // CÁLCULO DE INDEPENDÊNCIA (LÓGICA REVERSA E LOGARITMOS)
+    // CÁLCULO DE INDEPENDÊNCIA 
     // ==========================================
     function calcularIndependencia() {
         const rendaDesejada = extrairNumero('metaRenda');
@@ -290,7 +317,6 @@
         }
 
         const taxaMensal = Math.pow(1 + taxaAnual, 1 / 12) - 1;
-        
         const montanteAlvo = rendaDesejada / taxaMensal;
         document.getElementById('montanteAlvo').innerText = formatarMoeda(montanteAlvo);
 
@@ -308,7 +334,6 @@
 
         const numerador = (montanteAlvo * taxaMensal) + aporteMensal;
         const denominador = (valorInicial * taxaMensal) + aporteMensal;
-        
         const mesesNecessarios = Math.log(numerador / denominador) / Math.log(1 + taxaMensal);
         
         const totalMeses = Math.ceil(mesesNecessarios);
