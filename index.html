@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Ganho Garantido</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary: #04d361;
+            --primary-dark: #04b352;
+            --text: #2e384d;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        h1 { font-size: 24px; margin-bottom: 8px; text-align: center; }
+        p.subtitle { text-align: center; color: #718096; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+        .input-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input:focus { border-color: var(--primary); outline: none; }
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        button:hover { background-color: var(--primary-dark); }
+        .results {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 2px dashed var(--border);
+        }
+        .result-box {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background-color: #f7fafc; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📈 Simulador de Ganho Garantido</h1>
+    <p class="subtitle">A matemática dos juros compostos a seu favor</p>
+    
+    <div class="input-group">
+        <label for="inicial">Aporte Inicial (R$)</label>
+        <input type="number" id="inicial" value="100" placeholder="Ex: 100">
+    </div>
+    
+    <div class="input-group">
+        <label for="mensal">Aporte Mensal (R$)</label>
+        <input type="number" id="mensal" value="50" placeholder="Ex: 50">
+    </div>
+    
+    <div class="input-group">
+        <label for="taxa">Taxa de Lucro Anual (%)</label>
+        <input type="number" id="taxa" value="10.75" step="0.01">
+    </div>
+
+    <button onclick="calcular()">Simular Futuro Garantido</button>
+
+    <div class="results" id="resultados" style="display:none;">
+        <div class="result-box" id="totalFinal"></div>
+        
+        <label>Evolução de 1 a 5 Anos:</label>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ano</th>
+                    <th>Total Guardado</th>
+                    <th>Total com Juros</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaCorpo"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function calcular() {
+    const inicial = parseFloat(document.getElementById('inicial').value) || 0;
+    const mensal = parseFloat(document.getElementById('mensal').value) || 0;
+    const taxaAnual = parseFloat(document.getElementById('taxa').value) || 0;
+    
+    // Converte taxa anual para taxa mensal equivalente em juros compostos
+    const taxaMensal = Math.pow((1 + (taxaAnual / 100)), (1 / 12)) - 1;
+    
+    let saldo = inicial;
+    let totalInvestidoDoBolso = inicial;
+    let tabelaHTML = '';
+    
+    // Simula por 5 anos (60 meses)
+    for (let mes = 1; mes <= 60; mes++) {
+        saldo = (saldo + mensal) * (1 + taxaMensal);
+        totalInvestidoDoBolso += mensal;
+        
+        // A cada 12 meses (1 ano), guarda o resultado para colocar na tabela
+        if (mes % 12 === 0) {
+            const ano = mes / 12;
+            tabelaHTML += `
+                <tr>
+                    <td>${ano}º Ano</td>
+                    <td>R$ ${totalInvestidoDoBolso.toFixed(2)}</td>
+                    <td><strong>R$ ${saldo.toFixed(2)}</strong></td>
+                </tr>
+            `;
+        }
+    }
+    
+    document.getElementById('totalFinal').innerText = `Em 5 anos você terá: R$ ${saldo.toFixed(2)}`;
+    document.getElementById('tabelaCorpo').innerHTML = tableHTML = tabelaHTML;
+    document.getElementById('resultados').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
