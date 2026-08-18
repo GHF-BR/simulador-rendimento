@@ -38,10 +38,4 @@ Por ser uma aplicação baseada em HTML/CSS/JS puros, não há necessidade de in
 
 ```
 
----
-
-**Autor:** Desenvolvido por **GHF**
-
-```
-
-```
+ Desenvolvido por **GHF**
