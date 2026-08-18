@@ -71,16 +71,35 @@
         .dev-footer { grid-column: 1 / -1; text-align: center; padding: 20px 0; font-size: 13px; color: var(--text-muted); }
         .dev-footer strong { color: var(--primary); }
 
+        /* =========================================================
+           CSS EXCLUSIVO PARA IMPRESSÃO/PDF
+           ========================================================= */
         @media print {
             body, .dashboard-container, .card, .result-box { background: white !important; color: black !important; box-shadow: none !important; }
-            .controls, .btn-theme, .header-title p, .nav-tabs, .dev-footer { display: none !important; }
+            
+            /* Esconde botões, abas e textos auxiliares */
+            .btn-theme, .header-title p, .nav-tabs, .dev-footer, .btn-export { display: none !important; }
+            
             .dashboard-container { display: block !important; padding: 0 !important; }
+            .header-title h1 { font-size: 24px !important; text-align: center; margin-bottom: 40px !important; color: #820ad1 !important; }
+            
+            /* TRANSFORMA OS INPUTS NUMA LISTA DE DADOS TEXTUAIS */
+            .controls { display: block !important; padding: 0 0 20px 0 !important; border: none !important; margin-bottom: 30px !important; border-bottom: 2px solid #eee !important; border-radius: 0 !important; }
+            .input-group { display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 12px !important; border-bottom: 1px dashed #eee !important; padding-bottom: 8px !important; }
+            label { margin-bottom: 0 !important; font-size: 14px !important; color: #555 !important; }
+            .input-wrapper { display: flex !important; align-items: center !important; width: 150px !important; justify-content: flex-end !important; }
+            .prefix { position: static !important; margin-right: 5px !important; color: black !important; font-weight: 700 !important; }
+            input { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; text-align: right !important; color: black !important; font-weight: 700 !important; font-size: 16px !important; }
+            
+            /* AJUSTA AS CAIXAS DE RESULTADO PARA A4 (LADO A LADO) */
             .card.results { border: none !important; padding: 0 !important; }
-            .header-title h1 { font-size: 24px !important; text-align: center; margin-bottom: 30px !important; color: #820ad1 !important; }
-            .result-box { border: 1px solid #ddd !important; margin-bottom: 20px; }
-            .result-title { color: #555 !important; }
-            .result-value { color: black !important; }
+            .results-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 20px !important; }
+            .result-box { border: 1px solid #ddd !important; margin-bottom: 0 !important; padding: 20px !important; }
+            .result-title { color: #555 !important; font-size: 12px !important; }
+            .result-value { color: black !important; font-size: 24px !important; }
             .result-value.primary { color: #820ad1 !important; }
+            .result-subtitle { font-size: 12px !important; }
+            
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
@@ -270,47 +289,41 @@
             return;
         }
 
-        // Converte a taxa anual em mensal
         const taxaMensal = Math.pow(1 + taxaAnual, 1 / 12) - 1;
         
-        // Passo 1: Calcula o pote de ouro (Montante Alvo)
         const montanteAlvo = rendaDesejada / taxaMensal;
         document.getElementById('montanteAlvo').innerText = formatarMoeda(montanteAlvo);
 
-        // Se o que o usuário já tem é maior que o alvo, ele já é independente
         if (valorInicial >= montanteAlvo) {
             document.getElementById('tempoEstimado').innerText = "Você já atingiu a meta!";
             document.getElementById('dataAlvo').innerText = "Parabéns, você já tem independência financeira.";
             return;
         }
 
-        // Se o aporte for zero e o juros gerado pelo valor inicial não cobrir o alvo, a conta tende ao infinito
         if (aporteMensal === 0 && (valorInicial * taxaMensal) <= 0) {
             document.getElementById('tempoEstimado').innerText = "Nunca";
             document.getElementById('dataAlvo').innerText = "Sem aportes, você não chegará ao alvo.";
             return;
         }
 
-        // Passo 2: Fórmula Logarítmica para descobrir o tempo em meses
         const numerador = (montanteAlvo * taxaMensal) + aporteMensal;
         const denominador = (valorInicial * taxaMensal) + aporteMensal;
         
         const mesesNecessarios = Math.log(numerador / denominador) / Math.log(1 + taxaMensal);
         
-        // Arredondamentos para exibição bonita
         const totalMeses = Math.ceil(mesesNecessarios);
         const anos = Math.floor(totalMeses / 12);
         const mesesRestantes = totalMeses % 12;
 
-        // Construção do texto de tempo
         let textoTempo = "";
         if (anos > 0) textoTempo += `${anos} Ano${anos > 1 ? 's' : ''}`;
         if (anos > 0 && mesesRestantes > 0) textoTempo += " e ";
-        if (mesesRestantes > 0 || anos === 0) textoTempo += `${mesesRestantes} Mês${mesesRestantes > 1 ? 'es' : ''}`;
+        if (mesesRestantes > 0 || anos === 0) {
+            textoTempo += `${mesesRestantes} ${mesesRestantes > 1 ? 'Meses' : 'Mês'}`;
+        }
         
         document.getElementById('tempoEstimado').innerText = textoTempo;
 
-        // Calcula a data real (Mês e Ano futuro)
         const dataAtual = new Date();
         dataAtual.setMonth(dataAtual.getMonth() + totalMeses);
         
