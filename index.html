@@ -82,6 +82,42 @@
             border-radius: 12px; display: flex; justify-content: center; align-items: center;
         }
 
+        /* =========================================================
+           MENU DE NAVEGAÇÃO (TABS)
+           ========================================================= */
+        .nav-tabs {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            margin-bottom: -2px; /* Sobrepõe a borda do container */
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-main);
+            background: var(--surface-hover);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
         .input-group { margin-bottom: 24px; }
         label { display: block; font-weight: 500; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
         .input-wrapper { position: relative; display: flex; align-items: center; }
@@ -140,7 +176,7 @@
             }
             
             /* Esconde os controles que não devem sair no papel/PDF */
-            .controls, .btn-theme, .header-title p, summary, .dev-footer {
+            .controls, .btn-theme, .header-title p, summary, .dev-footer, .nav-tabs {
                 display: none !important;
             }
 
@@ -203,6 +239,12 @@
         </div>
         <button class="btn-theme" id="btnTheme" onclick="toggleTheme()" title="Alternar Tema">☀️</button>
     </div>
+
+    <!-- Menu de Navegação -->
+    <nav class="nav-tabs">
+        <a href="index.html" class="nav-tab active">Projeção de Juros</a>
+        <a href="independencia.html" class="nav-tab">Meta de Renda (Aposentadoria)</a>
+    </nav>
 
     <!-- Painel Lateral de Controles -->
     <div class="card controls">
