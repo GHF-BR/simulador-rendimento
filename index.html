@@ -12,9 +12,6 @@
     
     <!-- Chart.js para o Gráfico -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- html2pdf para gerar o PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -22,7 +19,6 @@
             --surface-color: #202024;
             --surface-hover: #29292e;
             --primary: #820ad1; 
-            --primary-hover: #9c27b0;
             --success: #04d361; 
             --text-main: #e1e1e6;
             --text-muted: #a8a8b3;
@@ -55,11 +51,6 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .dashboard-container {
             display: grid;
             grid-template-columns: 1fr;
@@ -67,13 +58,10 @@
             max-width: 1000px;
             width: 100%;
             align-content: start;
-            animation: fadeUp 0.6s ease-out forwards;
         }
 
         @media (min-width: 768px) {
-            .dashboard-container {
-                grid-template-columns: 350px 1fr;
-            }
+            .dashboard-container { grid-template-columns: 350px 1fr; }
         }
 
         .card {
@@ -82,59 +70,42 @@
             border-radius: 16px;
             border: 1px solid var(--border-color);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, border-color 0.3s;
         }
 
-        .header-top {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; grid-column: 1 / -1; }
         .header-title h1 { font-size: 28px; margin: 0 0 8px 0; font-weight: 700; }
         .header-title p { color: var(--text-muted); margin: 0; font-size: 15px; }
 
         .btn-theme {
             background: var(--surface-color); border: 1px solid var(--border-color);
             color: var(--text-main); font-size: 20px; cursor: pointer; padding: 10px;
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s;
+            border-radius: 12px; display: flex; justify-content: center; align-items: center;
         }
-        .btn-theme:hover { background: var(--surface-hover); transform: scale(1.05); }
 
         .input-group { margin-bottom: 24px; }
         label { display: block; font-weight: 500; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
-        
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .prefix { position: absolute; left: 14px; color: var(--text-muted); font-weight: 500; }
         
         input {
             width: 100%; background-color: var(--bg-color); color: var(--text-main);
             padding: 14px 14px 14px 40px; border: 1px solid var(--border-color);
-            border-radius: 10px; font-size: 16px; font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease; box-sizing: border-box;
+            border-radius: 10px; font-size: 16px; font-family: 'Inter', sans-serif; box-sizing: border-box;
         }
         input.no-prefix { padding-left: 14px; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(130, 10, 209, 0.2); outline: none; }
+        input:focus { border-color: var(--primary); outline: none; }
 
         .years-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .btn-preset {
             background-color: var(--bg-color); color: var(--text-muted); border: 1px solid var(--border-color);
-            padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;
+            padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;
         }
-        .btn-preset:hover { background-color: var(--surface-hover); }
         .btn-preset.active { background-color: rgba(130, 10, 209, 0.15); color: var(--primary); border-color: var(--primary); }
 
         .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .result-box { background: var(--bg-color); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; transition: all 0.3s; }
+        .result-box { background: var(--bg-color); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; }
+        .result-box.highlight { background: linear-gradient(145deg, var(--surface-color), var(--bg-color)); border: 1px solid var(--primary); }
         
-        .result-box.highlight {
-            background: linear-gradient(145deg, var(--surface-color), var(--bg-color));
-            border: 1px solid var(--primary);
-        }
-        body.light-theme .result-box.highlight { background: rgba(130, 10, 209, 0.05); }
-
         .result-title { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
         .result-value { font-size: 24px; font-weight: 700; color: var(--text-main); }
         .result-value.success { color: var(--success); }
@@ -143,42 +114,98 @@
         .chart-container { position: relative; height: 350px; width: 100%; margin-bottom: 24px;}
 
         .btn-export {
-            width: 100%; background-color: var(--surface-hover); color: var(--text-main);
-            border: 1px solid var(--border-color); padding: 14px; font-size: 15px; font-weight: 600;
-            border-radius: 10px; cursor: pointer; transition: all 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px;
+            width: 100%; background-color: var(--primary); color: white;
+            border: none; padding: 16px; font-size: 15px; font-weight: 600;
+            border-radius: 10px; cursor: pointer; display: flex; justify-content: center; gap: 8px;
         }
-        .btn-export:hover { border-color: var(--primary); color: var(--primary); }
 
-        details { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-top: 20px; transition: all 0.3s; }
-        summary { font-weight: 600; cursor: pointer; color: var(--primary); outline: none; font-size: 15px; }
-        
+        details { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-top: 20px; }
+        summary { font-weight: 600; cursor: pointer; color: var(--primary); font-size: 15px; outline: none;}
         .table-container { margin-top: 15px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        th { color: var(--text-muted); font-weight: 500; padding: 10px; border-bottom: 1px solid var(--border-color); }
-        td { padding: 10px; color: var(--text-main); border-bottom: 1px solid var(--border-color); }
-        tr:last-child td { border-bottom: none; }
+        th, td { padding: 10px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
 
-        .dev-footer {
-            grid-column: 1 / -1; text-align: center; padding-top: 20px; padding-bottom: 10px;
-            font-size: 13px; color: var(--text-muted); letter-spacing: 0.5px;
+        .dev-footer { grid-column: 1 / -1; text-align: center; padding: 20px 0; font-size: 13px; color: var(--text-muted); }
+        .dev-footer strong { color: var(--primary); }
+
+        /* =========================================================
+           O SEGREDO PROFISSIONAL: CSS EXCLUSIVO PARA IMPRESSÃO/PDF
+           ========================================================= */
+        @media print {
+            /* Força tudo para fundo branco e texto preto (Estilo Relatório A4) */
+            body, .dashboard-container, .card, .result-box, details {
+                background: white !important;
+                color: black !important;
+                box-shadow: none !important;
+            }
+            
+            /* Esconde os controles que não devem sair no papel/PDF */
+            .controls, .btn-theme, .header-title p, summary, .dev-footer {
+                display: none !important;
+            }
+
+            /* Remove o grid para a folha A4 fluir de cima para baixo */
+            .dashboard-container {
+                display: block !important;
+                padding: 0 !important;
+            }
+
+            .card.results {
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            .header-title h1 {
+                font-size: 24px !important;
+                text-align: center;
+                margin-bottom: 30px !important;
+                color: #820ad1 !important;
+            }
+
+            .result-box {
+                border: 1px solid #ddd !important;
+            }
+
+            .result-title { color: #555 !important; }
+            .result-value { color: black !important; }
+            .result-value.success { color: #05a04c !important; }
+            .result-value.primary { color: #820ad1 !important; }
+
+            /* Força a tabela a aparecer inteira e estilizada */
+            details { border: none !important; }
+            .table-container { display: block !important; }
+            th, td { color: black !important; border-bottom: 1px solid #eee !important; }
+            th { background-color: #f9f9f9 !important; font-weight: bold !important; }
+
+            /* Mantém o gráfico em um tamanho amigável para A4 */
+            .chart-container {
+                height: 280px !important;
+                margin-bottom: 40px !important;
+                page-break-inside: avoid;
+            }
+
+            /* Permite o navegador forçar as cores exatas que definimos acima */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
         }
-        .dev-footer strong { color: var(--primary); font-weight: 700; }
     </style>
 </head>
 <body>
 
-<div class="dashboard-container" id="area-relatorio">
+<div class="dashboard-container">
     
     <div class="header-top">
         <div class="header-title">
-            <h1>📈 Ganho Garantido Pro</h1>
+            <h1>📈 Relatório de Investimentos</h1>
             <p>Simulação avançada de projeção patrimonial e juros compostos.</p>
         </div>
         <button class="btn-theme" id="btnTheme" onclick="toggleTheme()" title="Alternar Tema">☀️</button>
     </div>
 
     <!-- Painel Lateral de Controles -->
-    <div class="card controls" id="painelControles">
+    <div class="card controls">
         
         <div class="input-group">
             <label for="valorInicial">Valor Inicial (Já investido)</label>
@@ -216,14 +243,14 @@
             </div>
         </div>
         
-        <button class="btn-export" onclick="exportarPDF()">
-            📄 Baixar Relatório em PDF
+        <button class="btn-export" onclick="gerarPDF()">
+            📄 Gerar PDF Nativo
         </button>
 
     </div>
 
     <!-- Painel Principal de Resultados -->
-    <div class="card results" id="painelResultados">
+    <div class="card results">
         
         <div class="results-grid">
             <div class="result-box">
@@ -266,7 +293,7 @@
     </div>
 
     <!-- Assinatura -->
-    <div class="dev-footer" id="rodapeDev">
+    <div class="dev-footer">
         Developed by <strong>GHF</strong>
     </div>
 
@@ -294,50 +321,21 @@
     }
 
     // ==========================================
-    // EXPORTAR PARA PDF (CORRIGIDO)
+    // EXPORTAR PDF (Solução Nativa)
     // ==========================================
-    function exportarPDF() {
-        // Elementos da interface
-        const container = document.getElementById('area-relatorio');
-        const controles = document.getElementById('painelControles');
-        const botaoTema = document.getElementById('btnTheme');
-        const tabela = document.getElementById('tabelaDetalhes');
+    function gerarPDF() {
+        // Garante que a tabela está aberta antes de imprimir para sair no relatório
+        document.getElementById('tabelaDetalhes').open = true;
         
-        // 1. Preparação Mágica do Layout para PDF
-        // Removemos o grid temporariamente e escondemos os controles
-        const gridOriginal = container.style.display;
-        controles.style.display = 'none';
-        botaoTema.style.display = 'none';
-        container.style.display = 'block'; // Transforma em um bloco contínuo para evitar buracos
-
-        // Garante que a tabela saia aberta no PDF, se estiver fechada
-        const tabelaEstavaAberta = tabela.open;
-        tabela.open = true;
-
-        // Pega a cor de fundo do tema atual (impede PDF de ficar com fundo transparente bugado)
-        const bgColor = getComputedStyle(document.body).backgroundColor;
-
-        // Configurações do PDF
-        const opcoes = {
-            margin:       [15, 10, 15, 10], // Margem de respiro [top, left, bottom, right]
-            filename:     'Relatorio_Investimentos.pdf',
-            image:        { type: 'jpeg', quality: 1.0 },
-            html2canvas:  { 
-                scale: 2, 
-                useCORS: true, 
-                backgroundColor: bgColor,
-                windowWidth: 1000 // Força uma largura fixa para evitar gráficos achatados
-            },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        // 2. Gera o PDF e restaura o layout assim que terminar
-        html2pdf().set(opcoes).from(container).save().then(() => {
-            controles.style.display = '';
-            botaoTema.style.display = '';
-            container.style.display = gridOriginal;
-            tabela.open = tabelaEstavaAberta; // Devolve a tabela ao estado anterior
-        });
+        // Sugere o nome do arquivo mudando o title da página temporariamente
+        const tituloOriginal = document.title;
+        document.title = "Relatorio_Investimentos";
+        
+        // Chama a caixa de impressão/PDF nativa do Windows/Mac/Android/iOS
+        window.print();
+        
+        // Devolve o título original
+        document.title = tituloOriginal;
     }
 
     // ==========================================
@@ -519,7 +517,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: { duration: 0 }, // Evita que o gráfico pisque ou corte na hora de tirar o PDF
+                animation: { duration: 500 }, 
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
                     legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, color: corTexto } },
@@ -532,10 +530,7 @@
                     }
                 },
                 scales: {
-                    x: { 
-                        grid: { display: false, drawBorder: false },
-                        ticks: { color: corTexto }
-                    },
+                    x: { grid: { display: false, drawBorder: false }, ticks: { color: corTexto } },
                     y: {
                         stacked: true, 
                         grid: { color: corGrid, drawBorder: false },
@@ -552,6 +547,20 @@
             }
         });
     }
+
+    // Se houver alteração de cor antes da impressão para o gráfico ficar visível
+    window.addEventListener('beforeprint', () => {
+        if(meuGrafico) {
+            meuGrafico.options.scales.x.ticks.color = '#000';
+            meuGrafico.options.scales.y.ticks.color = '#000';
+            meuGrafico.options.plugins.legend.labels.color = '#000';
+            meuGrafico.update();
+        }
+    });
+
+    window.addEventListener('afterprint', () => {
+        calcularJuros(); // Recalcula para devolver as cores pro modo escuro/claro original
+    });
     
     window.onload = function() {
         carregarTema();
