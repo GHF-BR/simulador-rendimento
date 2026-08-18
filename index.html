@@ -4,190 +4,319 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Ganho Garantido Pro</title>
-    <!-- Incluindo o Chart.js para renderizar o gráfico de barras -->
-    <script src="https://jsdelivr.net"></script>
+    
+    <!-- Fonte Inter (Padrão de interfaces modernas) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js corrigido via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         :root {
-            --primary: #1F4E78;
-            --success: #2E7D32;
-            --accent: #E2EFDA;
-            --background: #f4f6f9;
-            --dark: #2c3e50;
+            /* Paleta Fintech Dark Mode */
+            --bg-color: #121214;
+            --surface-color: #202024;
+            --surface-hover: #29292e;
+            --primary: #820ad1; /* Roxo Nubank */
+            --primary-hover: #9c27b0;
+            --success: #04d361; /* Verde Neon */
+            --text-main: #e1e1e6;
+            --text-muted: #a8a8b3;
+            --border-color: #323238;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background);
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
-        .container {
-            background: white;
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            max-width: 1000px;
+            width: 100%;
+            align-content: start;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 350px 1fr;
+            }
+        }
+
+        .card {
+            background: var(--surface-color);
             padding: 30px;
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            max-width: 600px;
-            width: 100%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
-        h1 {
-            color: var(--primary);
-            font-size: 26px;
-            margin-top: 0;
-            text-align: center;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: var(--dark);
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.2s;
-        }
-        input:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-        /* Botões de atalho de anos */
-        .years-presets {
-            display: flex;
-            gap: 10px;
+
+        .header-title {
+            grid-column: 1 / -1;
             margin-bottom: 10px;
         }
+
+        .header-title h1 {
+            font-size: 28px;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        /* Inputs estilizados */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 14px 14px 14px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input.no-prefix {
+            padding-left: 14px;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(130, 10, 209, 0.2);
+            outline: none;
+        }
+
+        /* Botões de atalho */
+        .years-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
         .btn-preset {
-            flex: 1;
-            background-color: #f0f4f8;
-            color: var(--primary);
-            border: 2px solid transparent;
-            padding: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 12px;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 14px;
             transition: all 0.2s;
         }
+
         .btn-preset:hover {
-            background-color: var(--accent);
+            background-color: var(--surface-hover);
         }
+
         .btn-preset.active {
-            background-color: var(--primary);
-            color: white;
+            background-color: rgba(130, 10, 209, 0.15);
+            color: var(--primary);
             border-color: var(--primary);
         }
+
         button.btn-main {
             width: 100%;
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 14px;
+            padding: 16px;
             font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
+            font-weight: 600;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.3s, transform 0.1s;
             margin-top: 10px;
         }
+
         button.btn-main:hover {
-            background-color: #153552;
+            background-color: var(--primary-hover);
         }
-        .results {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
+
+        button.btn-main:active {
+            transform: scale(0.98);
         }
-        .result-card {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+
+        /* Resumo Financeiro */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 16px;
+
+        .result-box {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 12px;
         }
-        .highlight {
-            font-weight: bold;
+
+        .result-box.highlight {
+            background: linear-gradient(145deg, var(--surface-color), #1a1a1e);
+            border: 1px solid var(--primary);
+        }
+
+        .result-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .result-value.success {
             color: var(--success);
-            font-size: 20px;
         }
+
+        .result-value.primary {
+            color: var(--primary);
+        }
+
+        /* Container do Gráfico */
         .chart-container {
             position: relative;
-            margin: auto;
-            height: 260px;
+            height: 350px;
             width: 100%;
+        }
+
+        /* Scrollbar estilizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>📈 Ganho Garantido Pro</h1>
-    <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 25px;">
-        A simulação visual do seu futuro financeiro protegido.
-    </p>
+<div class="dashboard-container">
     
-    <div class="input-group">
-        <label for="aporte">Quanto você vai guardar por mês (R$):</label>
-        <input type="number" id="aporte" value="50" min="1" step="5">
+    <div class="header-title">
+        <h1>📈 Ganho Garantido Pro</h1>
+        <p>Simulação avançada de projeção patrimonial e juros compostos.</p>
     </div>
 
-    <div class="input-group">
-        <label for="taxa">Taxa de Rendimento Anual (%):</label>
-        <input type="number" id="taxa" value="10.5" min="0.1" step="0.1">
-    </div>
-
-    <div class="input-group">
-        <label>Por quantos anos deseja simular?</label>
-        <div class="years-presets">
-            <button class="btn-preset" onclick="setAnos(10, this)">10 Anos</button>
-            <button class="btn-preset active" onclick="setAnos(20, this)">20 Anos</button>
-            <button class="btn-preset" onclick="setAnos(30, this)">30 Anos</button>
-        </div>
-        <input type="number" id="anos" value="20" min="1" max="50" oninput="limparPresets()">
-    </div>
-
-    <button class="btn-main" onclick="calcularJuros()">Simular Futuro Financeiro</button>
-
-    <div class="results">
-        <div class="result-card">
-            <div class="result-row">
-                <span>Dinheiro tirado do bolso:</span>
-                <span id="totalInvestido" style="font-weight: bold; color: #555;">R$ 0,00</span>
-            </div>
-            <div class="result-row">
-                <span>Lucro puro dos Juros:</span>
-                <span id="totalLucro" style="color: var(--success); font-weight: bold;">R$ 0,00</span>
-            </div>
-            <div class="result-row" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
-                <strong>Saldo Total Acumulado:</strong>
-                <span id="saldoFinal" class="highlight">R$ 0,00</span>
+    <!-- Painel Lateral de Controles -->
+    <div class="card controls">
+        <div class="input-group">
+            <label for="aporte">Aporte Mensal</label>
+            <div class="input-wrapper">
+                <span class="prefix">R$</span>
+                <input type="number" id="aporte" value="500" min="1" step="50">
             </div>
         </div>
 
-        <!-- Elemento do gráfico de barras -->
+        <div class="input-group">
+            <label for="taxa">Rentabilidade Anual</label>
+            <div class="input-wrapper">
+                <span class="prefix">%</span>
+                <input type="number" id="taxa" value="10.5" min="0.1" step="0.1">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Horizonte de Investimento</label>
+            <div class="years-presets">
+                <button class="btn-preset" onclick="setAnos(10, this)">10 Anos</button>
+                <button class="btn-preset active" onclick="setAnos(20, this)">20 Anos</button>
+                <button class="btn-preset" onclick="setAnos(30, this)">30 Anos</button>
+            </div>
+            <div class="input-wrapper">
+                <input type="number" id="anos" class="no-prefix" value="20" min="1" max="50" oninput="limparPresets()">
+            </div>
+        </div>
+
+        <button class="btn-main" onclick="calcularJuros()">Calcular Projeção</button>
+    </div>
+
+    <!-- Painel Principal de Resultados -->
+    <div class="card results">
+        
+        <div class="results-grid">
+            <div class="result-box">
+                <div class="result-title">Valor Investido (Bolso)</div>
+                <div class="result-value" id="totalInvestido">R$ 0,00</div>
+            </div>
+            <div class="result-box">
+                <div class="result-title">Rendimento (Juros)</div>
+                <div class="result-value success" id="totalLucro">R$ 0,00</div>
+            </div>
+            <div class="result-box highlight">
+                <div class="result-title">Patrimônio Acumulado</div>
+                <div class="result-value primary" id="saldoFinal">R$ 0,00</div>
+            </div>
+        </div>
+
         <div class="chart-container">
-            <canvas id="graficoBarras"></style></canvas>
+            <canvas id="graficoProjecao"></canvas>
         </div>
     </div>
+
 </div>
 
 <script>
     let meuGrafico = null;
+    
+    Chart.defaults.color = '#a8a8b3';
+    Chart.defaults.font.family = "'Inter', sans-serif";
 
-    // Controla os botões de atalho de anos
     function setAnos(valor, botao) {
         document.getElementById('anos').value = valor;
         const botoes = document.querySelectorAll('.btn-preset');
@@ -196,74 +325,135 @@
         calcularJuros();
     }
 
-    // Se o usuário digitar um valor manualmente no campo, desmarca os botões de atalho
     function limparPresets() {
         const botoes = document.querySelectorAll('.btn-preset');
         botoes.forEach(b => b.classList.remove('active'));
     }
+
+    const formatarMoeda = (valor) => {
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    };
 
     function calcularJuros() {
         const aporteMensal = parseFloat(document.getElementById('aporte').value) || 0;
         const taxaAnual = (parseFloat(document.getElementById('taxa').value) || 0) / 100;
         const anos = parseInt(document.getElementById('anos').value) || 1;
         
-        const totalMeses = anos * 12;
         const taxaMensal = Math.pow(1 + taxaAnual, 1 / 12) - 1;
         
         let saldoAcumulado = 0;
-        let totalInvestidoDoBolso = 0;
+        let totalInvestido = 0;
         
-        for (let i = 0; i < totalMeses; i++) {
-            let rendimentoDoMes = saldoAcumulado * taxaMensal;
-            saldoAcumulado += aporteMensal + rendimentoDoMes;
-            totalInvestidoDoBolso += aporteMensal;
+        // Arrays para alimentar o gráfico
+        let historicoAnos = [];
+        let dadosInvestido = [];
+        let dadosJuros = [];
+        
+        for (let ano = 1; ano <= anos; ano++) {
+            for (let mes = 1; mes <= 12; mes++) {
+                let rendimento = saldoAcumulado * taxaMensal;
+                saldoAcumulado += aporteMensal + rendimento;
+                totalInvestido += aporteMensal;
+            }
+            
+            // Salva o "fotografia" do patrimônio ao final de cada ano
+            historicoAnos.push(ano + 'º Ano');
+            dadosInvestido.push(totalInvestido);
+            dadosJuros.push(saldoAcumulado - totalInvestido);
         }
         
-        const lucroPuro = saldoAcumulado - totalInvestidoDoBolso;
+        const lucroPuro = saldoAcumulado - totalInvestido;
         
-        // Formatação de Moeda
-        const formatar = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        // Atualiza UI textual
+        document.getElementById('totalInvestido').innerText = formatarMoeda(totalInvestido);
+        document.getElementById('totalLucro').innerText = formatarMoeda(lucroPuro);
+        document.getElementById('saldoFinal').innerText = formatarMoeda(saldoAcumulado);
         
-        document.getElementById('totalInvestido').innerText = formatar(totalInvestidoDoBolso);
-        document.getElementById('totalLucro').innerText = formatar(lucroPuro);
-        document.getElementById('saldoFinal').innerText = formatar(saldoAcumulado);
-        
-        // Atualiza ou inicializa o gráfico visual de barras
-        atualizarGrafico(totalInvestidoDoBolso, lucroPuro);
+        // Atualiza Gráfico
+        atualizarGrafico(historicoAnos, dadosInvestido, dadosJuros);
     }
 
-    function atualizarGrafico(investido, lucro) {
-        const ctx = document.getElementById('graficoBarras').getContext('2d');
+    function atualizarGrafico(labels, investido, juros) {
+        const ctx = document.getElementById('graficoProjecao').getContext('2d');
         
-        // Se o gráfico já existe, destrói o anterior para renderizar o novo sem bugs visuais
         if (meuGrafico) {
             meuGrafico.destroy();
         }
         
         meuGrafico = new Chart(ctx, {
-            type: 'bar',
+            type: 'line', // Usando gráfico de linha empilhada (Área) para visual mais financeiro
             data: {
-                labels: ['Seu Bolso', 'Lucro Juros'],
-                datasets: [{
-                    label: 'Distribuição Financeira (R$)',
-                    data: [investido.toFixed(2), lucro.toFixed(2)],
-                    backgroundColor: ['#555555', '#2E7D32'],
-                    borderWidth: 0,
-                    borderRadius: 6
-                }]
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Valor Investido',
+                        data: investido,
+                        borderColor: '#820ad1',
+                        backgroundColor: 'rgba(130, 10, 209, 0.4)', // Roxo Nubank transparente
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHitRadius: 10
+                    },
+                    {
+                        label: 'Juros Acumulados',
+                        data: juros,
+                        borderColor: '#04d361',
+                        backgroundColor: 'rgba(4, 211, 97, 0.4)', // Verde Neon transparente
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHitRadius: 10
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#202024',
+                        titleColor: '#e1e1e6',
+                        bodyColor: '#e1e1e6',
+                        borderColor: '#323238',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + formatarMoeda(context.raw);
+                            }
+                        }
+                    }
                 },
                 scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        }
+                    },
                     y: {
-                        beginAtZero: true,
+                        stacked: true, // Empilha os valores para mostrar o patrimônio total
+                        grid: {
+                            color: '#323238',
+                            drawBorder: false
+                        },
                         ticks: {
                             callback: function(value) {
-                                return 'R$ ' + value.toLocaleString('pt-BR');
+                                if (value >= 1000000) return 'R$ ' + (value / 1000000).toFixed(1) + 'M';
+                                if (value >= 1000) return 'R$ ' + (value / 1000).toFixed(0) + 'k';
+                                return 'R$ ' + value;
                             }
                         }
                     }
@@ -272,7 +462,7 @@
         });
     }
     
-    // Calcula automaticamente na primeira abertura da página
+    // Inicia a primeira simulação ao carregar
     window.onload = calcularJuros;
 </script>
 
